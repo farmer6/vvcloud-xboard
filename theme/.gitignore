@@ -1,4 +1,5 @@
-/*
-!v2board
-!Xboard
+*
 !.gitignore
+!Xboard/
+!v2board/
+!vvcloud/
