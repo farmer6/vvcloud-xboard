@@ -14,7 +14,7 @@ class UserUpdate extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email:strict',
+            'email' => 'required|email:strict|ascii',
             'password' => 'nullable',
             'transfer_enable' => 'numeric',
             'expired_at' => 'nullable|integer',
@@ -34,6 +34,7 @@ class UserUpdate extends FormRequest
         return [
             'email.required' => '邮箱不能为空',
             'email.email' => '邮箱格式不正确',
+            'email.ascii' => '邮箱格式不正确',
             'transfer_enable.numeric' => '流量格式不正确',
             'expired_at.integer' => '到期时间格式不正确',
             'banned.required' => '是否封禁不能为空',

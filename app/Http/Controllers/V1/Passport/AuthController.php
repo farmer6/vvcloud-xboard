@@ -35,7 +35,7 @@ class AuthController extends Controller
     public function loginWithMailLink(Request $request)
     {
         $params = $request->validate([
-            'email' => 'required|email:strict',
+            'email' => 'required|email:strict|ascii',
             'redirect' => 'nullable'
         ]);
 

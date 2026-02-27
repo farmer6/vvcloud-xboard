@@ -11,8 +11,9 @@ class CommSendEmailVerify extends FormRequest
         return [
             // required：必须提交
             // email:strict：严格邮箱格式
+            // ascii：禁止非 ASCII 字符（避免 SMTP 地址解析失败）
             // not_regex:/[A-Z]/：禁止出现任意大写字母（A-Z）
-            'email' => 'required|email:strict|not_regex:/[A-Z]/',
+            'email' => 'required|email:strict|ascii|not_regex:/[A-Z]/',
         ];
     }
 
@@ -21,6 +22,7 @@ class CommSendEmailVerify extends FormRequest
         return [
             'email.required'  => '邮箱不能为空',
             'email.email'     => '邮箱格式不正确',
+            'email.ascii'     => '邮箱格式不正确',
             'email.not_regex' => '邮箱地址不能包含大写字母，请全部使用小写后再试',
         ];
     }

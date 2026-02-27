@@ -15,7 +15,7 @@ class UserUpdate extends FormRequest
     {
         return [
             'id' => 'required|integer',
-            'email' => 'email:strict',
+            'email' => 'email:strict|ascii',
             'password' => 'nullable|min:8',
             'transfer_enable' => 'numeric',
             'expired_at' => 'nullable|integer',
@@ -41,6 +41,7 @@ class UserUpdate extends FormRequest
         return [
             'email.required' => '邮箱不能为空',
             'email.email' => '邮箱格式不正确',
+            'email.ascii' => '邮箱格式不正确',
             'transfer_enable.numeric' => '流量格式不正确',
             'expired_at.integer' => '到期时间格式不正确',
             'banned.in' => '是否封禁格式不正确',

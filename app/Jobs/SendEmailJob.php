@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Services\MailService;
+use RuntimeException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -13,7 +14,7 @@ class SendEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $params;
+    protected array $params;
 
     /**
      * 最大尝试次数
@@ -33,10 +34,8 @@ class SendEmailJob implements ShouldQueue
 
     /**
      * Create a new job instance.
-     *
-     * @return void
      */
-    public function __construct($params, $queue = 'send_email')
+    public function __construct(array $params, string $queue = 'send_email')
     {
         $this->onQueue($queue);
         $this->params = $params;
@@ -44,18 +43,38 @@ class SendEmailJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $mailLog = MailService::sendEmail($this->params);
+        $error = (string) ($mailLog['error'] ?? '');
 
-        // MailService 内部捕获异常并返回 error 字符串。
-        // 这里如果 error 非空，我们走“带退避的重试”，避免立刻重入。
-        if (!empty($mailLog['error'])) {
-            // 释放回队列，使用 backoff 作为延迟
-            $this->release($this->backoff);
+        if ($error === '') {
+            return;
         }
+
+        // Permanent recipient format errors should not be retried.
+        if (!$this->isRetryableError($error)) {
+            return;
+        }
+
+        throw new RuntimeException('Email delivery failed: ' . $error);
+    }
+
+    private function isRetryableError(string $error): bool
+    {
+        $nonRetryablePatterns = [
+            'Invalid addresses',
+            'non-ASCII characters not supported in local-part of email',
+            'Invalid email address format',
+        ];
+
+        foreach ($nonRetryablePatterns as $pattern) {
+            if (str_contains($error, $pattern)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

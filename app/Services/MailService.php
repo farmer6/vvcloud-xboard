@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Mail;
 
 class MailService
 {
+    private const NON_ASCII_EMAIL_ERROR = 'Invalid email address format: non-ASCII characters are not supported.';
+
     /**
      * 获取需要发送提醒的用户总数
      */
@@ -220,22 +222,26 @@ class MailService
             Config::set('mail.from.address', admin_setting('email_from_address', config('mail.from.address')));
             Config::set('mail.from.name', admin_setting('app_name', 'XBoard'));
         }
-        $email = $params['email'];
-        $subject = $params['subject'];
+        $email = (string) $params['email'];
+        $subject = (string) $params['subject'];
         $params['template_name'] = 'mail.' . admin_setting('email_template', 'default') . '.' . $params['template_name'];
-        try {
-            Mail::send(
-                $params['template_name'],
-                $params['template_value'],
-                function ($message) use ($email, $subject) {
-                    $message->to($email)->subject($subject);
-                }
-            );
-            $error = null;
-        } catch (\Exception $e) {
-            Log::error($e);
-            $error = $e->getMessage();
+
+        $error = self::validateEmailAddress($email);
+        if ($error === null) {
+            try {
+                Mail::send(
+                    $params['template_name'],
+                    $params['template_value'],
+                    function ($message) use ($email, $subject) {
+                        $message->to($email)->subject($subject);
+                    }
+                );
+            } catch (\Exception $e) {
+                Log::error($e);
+                $error = $e->getMessage();
+            }
         }
+
         $log = [
             'email' => $params['email'],
             'subject' => $params['subject'],
@@ -245,5 +251,18 @@ class MailService
         ];
         MailLog::create($log);
         return $log;
+    }
+
+    private static function validateEmailAddress(string $email): ?string
+    {
+        if (preg_match('/[^\x00-\x7F]/', $email)) {
+            return self::NON_ASCII_EMAIL_ERROR;
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return 'Invalid email address format.';
+        }
+
+        return null;
     }
 }
