@@ -1,0 +1,133 @@
+/* vv- 前缀：避免污染全站；尽量使用 inherit/var 适配现有主题 */
+.vv-modal-mask{
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:99999;
+  display:flex; align-items:center; justify-content:center;
+}
+.vv-modal{
+  width:min(520px, calc(100vw - 32px));
+  background:#fff;
+  border-radius:14px;
+  box-shadow:0 18px 60px rgba(0,0,0,.18);
+  overflow:hidden;
+  font-family:inherit;
+}
+.vv-modal-hd{
+  padding:16px 18px;
+  border-bottom:1px solid rgba(0,0,0,.06);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.vv-modal-title{
+  font-size:16px; font-weight:600; color:rgba(0,0,0,.88);
+}
+.vv-modal-close{
+  border:none; background:transparent; cursor:pointer;
+  font-size:18px; line-height:1; padding:6px 8px;
+  color:rgba(0,0,0,.45);
+}
+.vv-modal-bd{ padding:16px 18px; }
+.vv-modal-desc{
+  font-size:13px; color:rgba(0,0,0,.65);
+  margin:0 0 10px 0;
+}
+.vv-modal-email{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size:14px;
+  padding:10px 12px;
+  border:1px solid rgba(0,0,0,.10);
+  border-radius:10px;
+  background:rgba(0,0,0,.02);
+  color:rgba(0,0,0,.88);
+  word-break:break-all;
+}
+.vv-modal-suggest{
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  border:1px dashed rgba(0,0,0,.18);
+  background:rgba(0,0,0,.015);
+}
+.vv-modal-suggest .vv-kv{
+  display:flex; gap:10px; align-items:flex-start;
+  font-size:13px; color:rgba(0,0,0,.65);
+}
+.vv-modal-suggest .vv-kv b{
+  color:rgba(0,0,0,.88);
+  min-width:76px;
+}
+.vv-modal-ft{
+  padding:14px 18px;
+  border-top:1px solid rgba(0,0,0,.06);
+  display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+}
+.vv-btn{
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:13px;
+  border:1px solid rgba(0,0,0,.15);
+  background:#fff;
+  cursor:pointer;
+}
+.vv-btn:hover{ background:rgba(0,0,0,.03); }
+.vv-btn-primary{
+  border-color: rgba(0,0,0,.15);
+  background: #1677ff;
+  color:#fff;
+}
+.vv-btn-primary:hover{ filter:brightness(.96); }
+.vv-btn-danger{
+  border-color: rgba(255,77,79,.35);
+  background: rgba(255,77,79,.10);
+  color: rgba(255,77,79,1);
+}
+.vv-tip{
+  margin-top:10px;
+  font-size:12px;
+  color:rgba(0,0,0,.45);
+}
+
+/* ===== vv toast（用于“请输入正确邮件地址”提示）===== */
+.vv-toast{
+  position:fixed;
+  left:50%;
+  top:120px;
+  transform:translateX(-50%);
+  z-index:100000;
+  background:rgba(255,255,255,.98);
+  border-radius:999px;
+  padding:14px 18px;
+  min-width: 260px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  box-shadow:0 12px 40px rgba(0,0,0,.18);
+  border:1px solid rgba(0,0,0,.06);
+  font-family:inherit;
+}
+.vv-toast .vv-toast-icon{
+  width:34px; height:34px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,77,79,.12);
+  color: rgba(255,77,79,1);
+  font-size:18px;
+  flex:0 0 auto;
+}
+.vv-toast .vv-toast-title{
+  font-size:14px;
+  font-weight:600;
+  color: rgba(0,0,0,.88);
+  line-height:1.2;
+}
+.vv-toast .vv-toast-sub{
+  font-size:12px;
+  color: rgba(0,0,0,.55);
+  line-height:1.2;
+  margin-top:2px;
+}
+.vv-toast.vv-toast-hide{
+  opacity:0;
+  transform:translateX(-50%) translateY(-6px);
+  transition: all .28s ease;
+}

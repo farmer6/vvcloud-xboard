@@ -1,0 +1,17 @@
+/* 容器位置：下移到屏幕 1/3 */
+.n-message-container { top: 33vh !important; z-index: 99999 !important; pointer-events: none !important; }
+/* 动效：进入时淡入 + 上浮 + 轻微缩放 */
+.n-message { animation: vvcloud-fade-in 0.35s cubic-bezier(.22, .61, .36, 1) forwards, vvcloud-slide-up 0.35s cubic-bezier(.22, .61, .36, 1) forwards, vvcloud-scale-in 0.35s cubic-bezier(.22, .61, .36, 1) forwards; }
+@keyframes vvcloud-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vvcloud-slide-up { from { transform: translateY(14px); } to { transform: translateY(0); } }
+@keyframes vvcloud-scale-in { from { transform: scale(0.94); } to { transform: scale(1); } }
+/* 样式主体（比之前大 20%） */
+.n-message { position: relative !important; background: #ffffff !important; color: #1f2937 !important; font-size: 19px !important; font-weight: 600 !important; line-height: 1.65 !important; padding: 20px 34px !important; border-radius: 22px !important; box-shadow: 0 14px 42px rgba(0,0,0,0.20) !important; overflow: hidden !important; display: flex !important; align-items: center !important; gap: 14px !important; }
+/* 左侧绿色条 */
+.n-message::before { content: ""; position: absolute; left: 0; top: 0; width: 6px; height: 100%; background: #22c55e; }
+/* 底部倒计时条 */
+.n-message::after { content: ""; position: absolute; left: 0; bottom: 0; height: 5px; width: 100%; background: #22c55e; transform-origin: left center; animation: vvcloud-progress 2.2s linear forwards; }
+@keyframes vvcloud-progress { from { transform: scaleX(1); opacity: 1; } to { transform: scaleX(0); opacity: .3; } }
+/* 图标（苹果绿色，放大） */
+.n-message__icon { font-size: 26px !important; color: #22c55e !important; }
+.n-message--success-type { background-color: #ffffff !important; color: #1f2937 !important; }
