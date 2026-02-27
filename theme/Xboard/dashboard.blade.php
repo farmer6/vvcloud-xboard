@@ -6,10 +6,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
   <title>{{$title}}</title>
   <script type="module" crossorigin src="/theme/{{$theme}}/assets/umi.js"></script>
+<!-- vvcloud:inject:begin -->
+<link rel="stylesheet" href="/vvcloud-custom/vvcloud-nmessage.css">
+<script defer src="/vvcloud-custom/vvcloud-crisp.js"></script>
+
+<!-- vvcloud:ses-ux:begin -->
+<link rel="stylesheet" href="/vvcloud-custom/vvcloud-email-verify-confirm.v2.css">
+<script defer src="/vvcloud-custom/vvcloud-email-verify-confirm.v2.js"></script>
+<!-- vvcloud:ses-ux:end -->
+
+<!-- vvcloud:inject:end -->
 </head>
 
 <body>
-
   <script>
     window.routerBase = "/";
     window.settings = {
