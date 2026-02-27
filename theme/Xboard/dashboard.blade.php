@@ -81,17 +81,17 @@
         const year = new Date().getFullYear();
         return '' +
           '<div id="' + footerId + '">' +
-            '<a href="/about" target="_blank" rel="noopener noreferrer">About</a>' +
-            '<a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>' +
-            '<a href="/contact" target="_blank" rel="noopener noreferrer">Contact</a>' +
-            '<a href="/copyright" target="_blank" rel="noopener noreferrer">Copyright</a>' +
+            '<a href="/about" target="_blank" rel="noopener noreferrer">About 关于我们</a>' +
+            '<a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy 隐私政策</a>' +
+            '<a href="/contact" target="_blank" rel="noopener noreferrer">Contact 联系我们</a>' +
+            '<a href="/copyright" target="_blank" rel="noopener noreferrer">Copyright 版权信息</a>' +
             '<span>© ' + year + ' {{$title}}. All rights reserved.</span>' +
           '</div>';
       };
 
       const shouldShow = function () {
         const hash = (window.location.hash || '').toLowerCase();
-        return hash.indexOf('#/register') === 0;
+        return hash.indexOf('#/register') === 0 || hash.indexOf('#/login') === 0;
       };
 
       const renderFooter = function () {
