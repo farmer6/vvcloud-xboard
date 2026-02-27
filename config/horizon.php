@@ -155,7 +155,7 @@ return [
     |
     */
 
-    'memory_limit' => 64,
+    'memory_limit' => 128,
 
     /*
     |--------------------------------------------------------------------------
@@ -183,9 +183,12 @@ return [
                 ],
                 'balance' => 'auto',
                 'minProcesses' => 1,
-                'maxProcesses' => 20,
-                'tries' => 1,
-                'balanceCooldown' => 3,
+                'maxProcesses' => 8,
+                // 关键：必须 >= SendEmailJob::$timeout (我们建议 120)
+                // 建议留冗余，避免网络抖动时 Worker 先被 supervisor 杀掉
+                'timeout' => 180,
+                'tries' => 5,
+                'balanceCooldown' => 10,
             ],
         ],
     ],
