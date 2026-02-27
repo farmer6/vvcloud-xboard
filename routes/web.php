@@ -70,6 +70,11 @@ Route::get('/', function (Request $request) {
     }
 });
 
+Route::view('/about', 'legal.about')->name('legal.about');
+Route::view('/privacy', 'legal.privacy')->name('legal.privacy');
+Route::view('/contact', 'legal.contact')->name('legal.contact');
+Route::view('/copyright', 'legal.copyright')->name('legal.copyright');
+
 //TODO:: 兼容
 Route::get('/' . admin_setting('secure_path', admin_setting('frontend_admin_path', hash('crc32b', config('app.key')))), function () {
     return view('admin', [

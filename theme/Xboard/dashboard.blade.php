@@ -42,7 +42,74 @@
       logo: '{{$logo}}'
     }
   </script>
+  <style>
+    #vvcloud-legal-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid #e5e7eb;
+      padding: 10px 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    #vvcloud-legal-footer a {
+      color: #2563eb;
+      text-decoration: none;
+      margin: 0 8px;
+      white-space: nowrap;
+    }
+    @media (max-width: 640px) {
+      #vvcloud-legal-footer {
+        font-size: 11px;
+        padding: 8px 10px;
+      }
+      #vvcloud-legal-footer a {
+        margin: 0 5px;
+      }
+    }
+  </style>
   <div id="app"></div>
+  <script>
+    (function () {
+      const footerId = 'vvcloud-legal-footer';
+      const footerHtml = function () {
+        const year = new Date().getFullYear();
+        return '' +
+          '<div id="' + footerId + '">' +
+            '<a href="/about" target="_blank" rel="noopener noreferrer">About</a>' +
+            '<a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy</a>' +
+            '<a href="/contact" target="_blank" rel="noopener noreferrer">Contact</a>' +
+            '<a href="/copyright" target="_blank" rel="noopener noreferrer">Copyright</a>' +
+            '<span>© ' + year + ' {{$title}}. All rights reserved.</span>' +
+          '</div>';
+      };
+
+      const shouldShow = function () {
+        const hash = (window.location.hash || '').toLowerCase();
+        return hash.indexOf('#/register') === 0;
+      };
+
+      const renderFooter = function () {
+        const existing = document.getElementById(footerId);
+        if (!shouldShow()) {
+          if (existing) existing.remove();
+          return;
+        }
+        if (!existing) {
+          document.body.insertAdjacentHTML('beforeend', footerHtml());
+        }
+      };
+
+      window.addEventListener('hashchange', renderFooter);
+      document.addEventListener('DOMContentLoaded', renderFooter);
+      setTimeout(renderFooter, 500);
+    })();
+  </script>
   {!! $theme_config['custom_html'] !!}
 </body>
 
