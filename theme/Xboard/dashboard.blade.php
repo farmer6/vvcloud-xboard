@@ -110,7 +110,6 @@
       setTimeout(renderFooter, 500);
     })();
   </script>
-  {!! $theme_config['custom_html'] !!}
 </body>
 
 </html>
