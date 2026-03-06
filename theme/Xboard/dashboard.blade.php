@@ -9,6 +9,15 @@
 <!-- vvcloud:inject:begin -->
 <link rel="stylesheet" href="/vvcloud-custom/vvcloud-nmessage.css">
 <script defer src="/vvcloud-custom/vvcloud-crisp.js"></script>
+<link rel="stylesheet" href="/vvcloud-custom/vvcloud-contact-float.css">
+<script>
+  window.vvcloudContactConfig = {
+    email: @json('feedback@vvcloud.us'),
+    telegramUrl: @json(admin_setting('telegram_discuss_link', 'https://t.me/vvcloud_official')),
+    telegramDisplay: @json(admin_setting('telegram_discuss_id', ''))
+  };
+</script>
+<script defer src="/vvcloud-custom/vvcloud-contact-float.js"></script>
 
 <!-- vvcloud:ses-ux:begin -->
 <link rel="stylesheet" href="/vvcloud-custom/vvcloud-email-verify-confirm.v2.css">

@@ -29,7 +29,7 @@
 
         <div class="contact-item">
             <strong>Email：</strong>
-            <a href="mailto:feedback@mail.vv22rei.me">feedback@mail.vv22rei.me</a>
+            <a href="mailto:feedback@vvcloud.us">feedback@vvcloud.us</a>
         </div>
 
         <p>我们建议在反馈中附带问题发生时间、错误提示截图和设备环境，以便更快定位问题。</p>

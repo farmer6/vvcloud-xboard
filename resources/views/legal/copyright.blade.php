@@ -29,7 +29,7 @@
         <p>未经授权，任何单位或个人不得以复制、传播、镜像、反向工程等方式使用本站受保护内容。</p>
 
         <h2>侵权反馈</h2>
-        <p>如您认为本站内容侵犯您的合法权益，请通过 <a href="mailto:feedback@mail.vv22rei.me">feedback@mail.vv22rei.me</a> 联系我们并提供权属证明，我们将在核实后处理。</p>
+        <p>如您认为本站内容侵犯您的合法权益，请通过 <a href="mailto:feedback@vvcloud.us">feedback@vvcloud.us</a> 联系我们并提供权属证明，我们将在核实后处理。</p>
 
         <p class="meta">最后更新：{{ date('Y-m-d') }}</p>
         <p class="meta"><a href="/">返回首页</a></p>
