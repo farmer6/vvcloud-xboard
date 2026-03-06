@@ -20,7 +20,7 @@
   card.setAttribute("aria-label", "联系支持浮动窗口");
   card.innerHTML =
     '<div class="vvcloud-contact-head">' +
-      '<p class="vvcloud-contact-title">新手？不会使用？没关系联系我们</p>' +
+      '<p class="vvcloud-contact-title">新手？不会使用？没关系，联系我们简单学会！</p>' +
       '<button class="vvcloud-contact-collapse" type="button" aria-label="收起联系窗口">×</button>' +
     "</div>" +
     '<div class="vvcloud-contact-body">' +
