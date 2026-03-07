@@ -20,14 +20,14 @@
   card.setAttribute("aria-label", "联系支持浮动窗口");
   card.innerHTML =
     '<div class="vvcloud-contact-head">' +
-      '<p class="vvcloud-contact-title">新手？不会使用？没关系，联系我们简单学会！</p>' +
+      '<p class="vvcloud-contact-title">新手？不会使用？没关系，联系我们0门槛教学!</p>' +
       '<button class="vvcloud-contact-collapse" type="button" aria-label="收起联系窗口">×</button>' +
     "</div>" +
     '<div class="vvcloud-contact-body">' +
       '<p class="vvcloud-contact-desc">遇到任何问题都可以联系我们，我们会尽快协助你。</p>' +
       '<a class="vvcloud-contact-link" href="mailto:' + escapeAttr(email) + '" target="_blank" rel="noopener noreferrer">邮箱：' + escapeHtml(email) + "</a>" +
       '<a class="vvcloud-contact-link" href="' + escapeAttr(telegramUrl) + '" target="_blank" rel="noopener noreferrer">Telegram 群组：' + escapeHtml(telegramDisplay) + "</a>" +
-      '<p class="vvcloud-contact-tip">也可以直接点击右下角 Crisp 图标，进行在线沟通。</p>' +
+      '<a class="vvcloud-contact-link vvcloud-contact-crisp" href="#" aria-label="点击打开客服在线沟通">点击这里与客服在线沟通</a>' +
     "</div>";
 
   var toggleButton = document.createElement("button");
@@ -41,6 +41,7 @@
   document.body.appendChild(toggleButton);
 
   var collapseButton = card.querySelector(".vvcloud-contact-collapse");
+  var crispLink = card.querySelector(".vvcloud-contact-crisp");
 
   collapseButton.addEventListener("click", function () {
     setCollapsed(true);
@@ -49,6 +50,13 @@
   toggleButton.addEventListener("click", function () {
     setCollapsed(false);
   });
+
+  if (crispLink) {
+    crispLink.addEventListener("click", function (event) {
+      event.preventDefault();
+      openCrispChat();
+    });
+  }
 
   setCollapsed(readCollapsedState());
 
@@ -74,6 +82,14 @@
   function writeCollapsedState(collapsed) {
     try {
       localStorage.setItem(storageKey, collapsed ? "1" : "0");
+    } catch (e) {}
+  }
+
+  function openCrispChat() {
+    try {
+      window.$crisp = window.$crisp || [];
+      window.$crisp.push(["do", "chat:show"]);
+      window.$crisp.push(["do", "chat:open"]);
     } catch (e) {}
   }
 
