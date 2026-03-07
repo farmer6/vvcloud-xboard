@@ -7,7 +7,6 @@
   var fallbackEmail = "feedback@vvcloud.us";
   var fallbackTelegramUrl = "https://t.me/vvcloud_official";
   var fallbackTelegramDisplay = "@vvcloud_official";
-  var storageKey = "vvcloud_contact_float_collapsed";
 
   var email = normalizeEmail(config.email) || fallbackEmail;
   var telegramUrl = normalizeUrl(config.telegramUrl) || fallbackTelegramUrl;
@@ -58,7 +57,7 @@
     });
   }
 
-  setCollapsed(readCollapsedState());
+  setCollapsed(false);
 
   function setCollapsed(collapsed) {
     if (collapsed) {
@@ -68,21 +67,6 @@
       card.classList.remove("vvcloud-contact-hidden");
       toggleButton.classList.add("vvcloud-contact-hidden");
     }
-    writeCollapsedState(collapsed);
-  }
-
-  function readCollapsedState() {
-    try {
-      return localStorage.getItem(storageKey) === "1";
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function writeCollapsedState(collapsed) {
-    try {
-      localStorage.setItem(storageKey, collapsed ? "1" : "0");
-    } catch (e) {}
   }
 
   function openCrispChat() {
