@@ -61,8 +61,7 @@ class RegisterService
 
         // 检查Gmail限制
         if ((int) admin_setting('email_gmail_limit_enable', 0)) {
-            $prefix = explode('@', $request->input('email'))[0];
-            if (strpos($prefix, '.') !== false || strpos($prefix, '+') !== false) {
+            if (Helper::hasAliasLikeEmailPrefix($request->input('email'))) {
                 return [false, [400, __('Gmail alias is not supported')]];
             }
         }
