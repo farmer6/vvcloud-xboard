@@ -27,10 +27,6 @@ class CommController extends Controller
 
         $email = $request->input('email');
 
-        if ((int) admin_setting('email_gmail_limit_enable', 0) && Helper::hasAliasLikeEmailPrefix($email)) {
-            return $this->fail([400, __('Gmail alias is not supported')]);
-        }
-
         // 检查白名单后缀限制
         if ((int) admin_setting('email_whitelist_enable', 0)) {
             $isRegisteredEmail = User::where('email', $email)->exists();

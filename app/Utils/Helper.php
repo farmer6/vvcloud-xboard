@@ -101,13 +101,6 @@ class Helper
         return true;
     }
 
-    public static function hasAliasLikeEmailPrefix(string $email): bool
-    {
-        $prefix = explode('@', $email)[0] ?? '';
-
-        return strpos($prefix, '.') !== false || strpos($prefix, '+') !== false;
-    }
-
     public static function trafficConvert(float $byte)
     {
         $kb = 1024;
