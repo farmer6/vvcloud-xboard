@@ -5,6 +5,7 @@
   var KNOWLEDGE_PATH = "/#/knowledge";
   var PLAN_PATH = "/#/plan";
   var USER_INFO_API = "/api/v1/user/info";
+  var ACCESS_TOKEN_STORAGE_KEY = "XBOARD_ACCESS_TOKEN";
   var inflightRequest = null;
 
   function currentHash() {
@@ -49,7 +50,7 @@
           '<div class="vvcloud-welcome-note">测试期间动态家宽 IP 线路无法体验，可购买订阅使用。</div>' +
           '<div class="vvcloud-welcome-actions">' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-primary" href="' + KNOWLEDGE_PATH + '">查看新手教程</a>' +
-            '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-secondary" href="' + PLAN_PATH + '">购买订阅</a>' +
+            '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-accent" href="' + PLAN_PATH + '">购买订阅</a>' +
             '<button class="vvcloud-welcome-btn vvcloud-welcome-btn-secondary" type="button" data-act="dismiss">我知道了</button>' +
           "</div>" +
         "</div>" +
@@ -89,6 +90,14 @@
 
   function getAuthToken() {
     try {
+      var accessTokenPayload = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+      if (accessTokenPayload) {
+        var parsed = JSON.parse(accessTokenPayload);
+        if (parsed && parsed.value) {
+          return parsed.value;
+        }
+      }
+
       if (window.localStorage.getItem("auth_data")) {
         return window.localStorage.getItem("auth_data");
       }
