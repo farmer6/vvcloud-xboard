@@ -4,8 +4,7 @@
   var MODAL_ID = "vvcloud-dashboard-welcome";
   var KNOWLEDGE_PATH = "/#/knowledge";
   var PLAN_PATH = "/#/plan";
-  var USER_INFO_API = "/api/v1/user/info";
-  var ACCESS_TOKEN_STORAGE_KEY = "XBOARD_ACCESS_TOKEN";
+  var ACCESS_TOKEN_STORAGE_KEYS = ["VUE_NAIVE_ACCESS_TOKEN", "XBOARD_ACCESS_TOKEN"];
   var inflightRequest = null;
 
   function currentHash() {
@@ -14,14 +13,29 @@
 
   function isDashboardRoute() {
     var hash = currentHash();
+    var path = String(window.location.pathname || "").toLowerCase();
 
-    return hash === "" || hash === "#" || hash === "#/" || hash.indexOf("#/dashboard") === 0;
+    return (
+      hash === "" ||
+      hash === "#" ||
+      hash === "#/" ||
+      hash.indexOf("#/dashboard") === 0 ||
+      path === "/dashboard"
+    );
   }
 
   function isAuthRoute() {
     var hash = currentHash();
+    var path = String(window.location.pathname || "").toLowerCase();
 
-    return hash.indexOf("#/login") === 0 || hash.indexOf("#/register") === 0 || hash.indexOf("#/forget") === 0;
+    return (
+      hash.indexOf("#/login") === 0 ||
+      hash.indexOf("#/register") === 0 ||
+      hash.indexOf("#/forget") === 0 ||
+      path === "/login" ||
+      path === "/register" ||
+      path === "/forget"
+    );
   }
 
   function removeModal() {
@@ -90,8 +104,12 @@
 
   function getAuthToken() {
     try {
-      var accessTokenPayload = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-      if (accessTokenPayload) {
+      for (var i = 0; i < ACCESS_TOKEN_STORAGE_KEYS.length; i += 1) {
+        var accessTokenPayload = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEYS[i]);
+        if (!accessTokenPayload) {
+          continue;
+        }
+
         var parsed = JSON.parse(accessTokenPayload);
         if (parsed && parsed.value) {
           return parsed.value;
@@ -123,6 +141,23 @@
     return "Bearer " + token;
   }
 
+  function buildUserInfoUrl() {
+    var base = String(window.routerBase || "/");
+    if (!base) {
+      base = "/";
+    }
+
+    if (base.charAt(0) !== "/") {
+      base = "/" + base;
+    }
+
+    if (base.charAt(base.length - 1) !== "/") {
+      base += "/";
+    }
+
+    return window.location.origin + base + "api/v1/user/info?t=" + Date.now();
+  }
+
   function fetchCurrentUserInfo() {
     if (inflightRequest) {
       return inflightRequest;
@@ -133,7 +168,7 @@
       return Promise.resolve(null);
     }
 
-    inflightRequest = window.fetch(USER_INFO_API, {
+    inflightRequest = window.fetch(buildUserInfoUrl(), {
       method: "GET",
       credentials: "same-origin",
       headers: {
@@ -184,5 +219,6 @@
 
   document.addEventListener("DOMContentLoaded", maybeShowModal);
   window.addEventListener("hashchange", maybeShowModal);
+  window.addEventListener("popstate", maybeShowModal);
   window.setTimeout(maybeShowModal, 900);
 })();
