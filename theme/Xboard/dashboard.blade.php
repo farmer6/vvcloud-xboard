@@ -18,6 +18,8 @@
   };
 </script>
 <script defer src="/vvcloud-custom/vvcloud-contact-float.js"></script>
+<link rel="stylesheet" href="/vvcloud-custom/vvcloud-dashboard-welcome.css">
+<script defer src="/vvcloud-custom/vvcloud-dashboard-welcome.js"></script>
 
 <!-- vvcloud:ses-ux:begin -->
 <link rel="stylesheet" href="/vvcloud-custom/vvcloud-email-verify-confirm.v2.css">
