@@ -4,8 +4,6 @@
   var MODAL_ID = "vvcloud-dashboard-welcome";
   var KNOWLEDGE_PATH = "/#/knowledge";
   var PLAN_PATH = "/#/plan";
-  var ACCESS_TOKEN_STORAGE_KEYS = ["VUE_NAIVE_ACCESS_TOKEN", "XBOARD_ACCESS_TOKEN"];
-  var inflightRequest = null;
 
   function currentHash() {
     return String(window.location.hash || "").toLowerCase();
@@ -102,119 +100,13 @@
     }
   }
 
-  function getAuthToken() {
-    try {
-      for (var i = 0; i < ACCESS_TOKEN_STORAGE_KEYS.length; i += 1) {
-        var accessTokenPayload = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEYS[i]);
-        if (!accessTokenPayload) {
-          continue;
-        }
-
-        var parsed = JSON.parse(accessTokenPayload);
-        if (parsed && parsed.value) {
-          return parsed.value;
-        }
-      }
-
-      if (window.localStorage.getItem("auth_data")) {
-        return window.localStorage.getItem("auth_data");
-      }
-
-      if (window.localStorage.getItem("token")) {
-        return window.localStorage.getItem("token");
-      }
-    } catch (e) {}
-
-    return "";
-  }
-
-  function normalizeAuthorization(value) {
-    var token = String(value || "").trim();
-    if (!token) {
-      return "";
-    }
-
-    if (/^Bearer\s+/i.test(token)) {
-      return token;
-    }
-
-    return "Bearer " + token;
-  }
-
-  function buildUserInfoUrl() {
-    var base = String(window.routerBase || "/");
-    if (!base) {
-      base = "/";
-    }
-
-    if (base.charAt(0) !== "/") {
-      base = "/" + base;
-    }
-
-    if (base.charAt(base.length - 1) !== "/") {
-      base += "/";
-    }
-
-    return window.location.origin + base + "api/v1/user/info?t=" + Date.now();
-  }
-
-  function fetchCurrentUserInfo() {
-    if (inflightRequest) {
-      return inflightRequest;
-    }
-
-    var token = normalizeAuthorization(getAuthToken());
-    if (!token) {
-      return Promise.resolve(null);
-    }
-
-    inflightRequest = window.fetch(buildUserInfoUrl(), {
-      method: "GET",
-      credentials: "same-origin",
-      headers: {
-        Authorization: token
-      }
-    })
-      .then(function (response) {
-        if (!response.ok) {
-          return null;
-        }
-
-        return response.json().catch(function () {
-          return null;
-        });
-      })
-      .then(function (payload) {
-        if (!payload || payload.status !== "success" || !payload.data) {
-          return null;
-        }
-
-        return payload.data;
-      })
-      .catch(function () {
-        return null;
-      })
-      .finally(function () {
-        inflightRequest = null;
-      });
-
-    return inflightRequest;
-  }
-
   function maybeShowModal() {
     if (!isDashboardRoute() || isAuthRoute()) {
       removeModal();
       return;
     }
 
-    fetchCurrentUserInfo().then(function (user) {
-      if (!user || Number(user.plan_id) !== 1 || !isDashboardRoute()) {
-        removeModal();
-        return;
-      }
-
-      window.setTimeout(renderModal, 180);
-    });
+    window.setTimeout(renderModal, 180);
   }
 
   document.addEventListener("DOMContentLoaded", maybeShowModal);
