@@ -2,9 +2,10 @@
   "use strict";
 
   var MODAL_ID = "vvcloud-dashboard-welcome";
-  var SESSION_KEY = "vvcloud.dashboard.welcome.shown";
   var KNOWLEDGE_PATH = "/#/knowledge";
   var PLAN_PATH = "/#/plan";
+  var USER_INFO_API = "/api/v1/user/info";
+  var inflightRequest = null;
 
   function currentHash() {
     return String(window.location.hash || "").toLowerCase();
@@ -20,20 +21,6 @@
     var hash = currentHash();
 
     return hash.indexOf("#/login") === 0 || hash.indexOf("#/register") === 0 || hash.indexOf("#/forget") === 0;
-  }
-
-  function hasShown() {
-    try {
-      return window.sessionStorage.getItem(SESSION_KEY) === "1";
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function markShown() {
-    try {
-      window.sessionStorage.setItem(SESSION_KEY, "1");
-    } catch (e) {}
   }
 
   function removeModal() {
@@ -100,13 +87,90 @@
     }
   }
 
+  function getAuthToken() {
+    try {
+      if (window.localStorage.getItem("auth_data")) {
+        return window.localStorage.getItem("auth_data");
+      }
+
+      if (window.localStorage.getItem("token")) {
+        return window.localStorage.getItem("token");
+      }
+    } catch (e) {}
+
+    return "";
+  }
+
+  function normalizeAuthorization(value) {
+    var token = String(value || "").trim();
+    if (!token) {
+      return "";
+    }
+
+    if (/^Bearer\s+/i.test(token)) {
+      return token;
+    }
+
+    return "Bearer " + token;
+  }
+
+  function fetchCurrentUserInfo() {
+    if (inflightRequest) {
+      return inflightRequest;
+    }
+
+    var token = normalizeAuthorization(getAuthToken());
+    if (!token) {
+      return Promise.resolve(null);
+    }
+
+    inflightRequest = window.fetch(USER_INFO_API, {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        Authorization: token
+      }
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          return null;
+        }
+
+        return response.json().catch(function () {
+          return null;
+        });
+      })
+      .then(function (payload) {
+        if (!payload || payload.status !== "success" || !payload.data) {
+          return null;
+        }
+
+        return payload.data;
+      })
+      .catch(function () {
+        return null;
+      })
+      .finally(function () {
+        inflightRequest = null;
+      });
+
+    return inflightRequest;
+  }
+
   function maybeShowModal() {
-    if (!isDashboardRoute() || isAuthRoute() || hasShown()) {
+    if (!isDashboardRoute() || isAuthRoute()) {
+      removeModal();
       return;
     }
 
-    markShown();
-    window.setTimeout(renderModal, 500);
+    fetchCurrentUserInfo().then(function (user) {
+      if (!user || Number(user.plan_id) !== 1 || !isDashboardRoute()) {
+        removeModal();
+        return;
+      }
+
+      window.setTimeout(renderModal, 180);
+    });
   }
 
   document.addEventListener("DOMContentLoaded", maybeShowModal);
