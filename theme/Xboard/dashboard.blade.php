@@ -88,6 +88,7 @@
   <script>
     (function () {
       const footerId = 'vvcloud-legal-footer';
+      const pollIntervalMs = 250;
       const footerHtml = function () {
         const year = new Date().getFullYear();
         return '' +
@@ -102,10 +103,11 @@
 
       const shouldShow = function () {
         const hash = (window.location.hash || '').toLowerCase();
-        return hash.indexOf('#/register') === 0 || hash.indexOf('#/login') === 0;
+        const path = (window.location.pathname || '').toLowerCase();
+        return hash.indexOf('#/register') === 0 || hash.indexOf('#/login') === 0 || path === '/register' || path === '/login';
       };
 
-      const renderFooter = function () {
+      const syncFooter = function () {
         const existing = document.getElementById(footerId);
         if (!shouldShow()) {
           if (existing) existing.remove();
@@ -116,9 +118,11 @@
         }
       };
 
-      window.addEventListener('hashchange', renderFooter);
-      document.addEventListener('DOMContentLoaded', renderFooter);
-      setTimeout(renderFooter, 500);
+      window.addEventListener('hashchange', syncFooter);
+      window.addEventListener('popstate', syncFooter);
+      document.addEventListener('DOMContentLoaded', syncFooter);
+      setInterval(syncFooter, pollIntervalMs);
+      setTimeout(syncFooter, 500);
     })();
   </script>
 </body>
