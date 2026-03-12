@@ -4,6 +4,8 @@
   var MODAL_ID = "vvcloud-dashboard-welcome";
   var KNOWLEDGE_PATH = "/#/knowledge";
   var PLAN_PATH = "/#/plan";
+  var POLL_INTERVAL_MS = 250;
+  var lastDashboardState = false;
 
   function currentHash() {
     return String(window.location.hash || "").toLowerCase();
@@ -100,17 +102,29 @@
     }
   }
 
-  function maybeShowModal() {
-    if (!isDashboardRoute() || isAuthRoute()) {
+  function shouldShowOnCurrentRoute() {
+    return isDashboardRoute() && !isAuthRoute();
+  }
+
+  function syncModalWithRoute() {
+    var onDashboard = shouldShowOnCurrentRoute();
+
+    if (!onDashboard) {
       removeModal();
+      lastDashboardState = false;
       return;
     }
 
-    window.setTimeout(renderModal, 180);
+    if (!lastDashboardState) {
+      window.setTimeout(renderModal, 180);
+    }
+
+    lastDashboardState = true;
   }
 
-  document.addEventListener("DOMContentLoaded", maybeShowModal);
-  window.addEventListener("hashchange", maybeShowModal);
-  window.addEventListener("popstate", maybeShowModal);
-  window.setTimeout(maybeShowModal, 900);
+  document.addEventListener("DOMContentLoaded", syncModalWithRoute);
+  window.addEventListener("hashchange", syncModalWithRoute);
+  window.addEventListener("popstate", syncModalWithRoute);
+  window.setInterval(syncModalWithRoute, POLL_INTERVAL_MS);
+  window.setTimeout(syncModalWithRoute, 900);
 })();
