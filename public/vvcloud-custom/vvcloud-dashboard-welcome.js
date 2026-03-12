@@ -4,8 +4,12 @@
   var MODAL_ID = "vvcloud-dashboard-welcome";
   var KNOWLEDGE_PATH = "/#/knowledge";
   var PLAN_PATH = "/#/plan";
+  var TELEGRAM_URL = "https://t.me/vvcloud_official";
   var POLL_INTERVAL_MS = 250;
+  var ACCESS_TOKEN_STORAGE_KEY = "VUE_NAIVE_ACCESS_TOKEN";
+  var USER_INFO_API_PATH = "/api/v1/user/info";
   var lastDashboardState = false;
+  var userInfoRequest = null;
 
   function currentHash() {
     return String(window.location.hash || "").toLowerCase();
@@ -60,11 +64,12 @@
         '<div class="vvcloud-welcome-body">' +
           '<div class="vvcloud-welcome-eyebrow">NEW USER GUIDE</div>' +
           '<h2 class="vvcloud-welcome-title" id="vvcloud-welcome-title">注册后即可获得 10G 测试流量</h2>' +
-          '<p class="vvcloud-welcome-desc">首次进入面板，建议先看一下使用说明。如果你还不熟悉订阅导入、客户端选择或节点使用方式，可以直接查看新手教程。</p>' +
+          '<p class="vvcloud-welcome-desc">首次进入面板，建议先看一下使用说明。如果你还不熟悉订阅导入、客户端选择或节点使用方式，可以直接查看新手教程或者联系电报群客服。</p>' +
           '<div class="vvcloud-welcome-note">测试期间动态家宽 IP 线路无法体验，可购买订阅使用。</div>' +
           '<div class="vvcloud-welcome-actions">' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-primary" href="' + KNOWLEDGE_PATH + '">查看新手教程</a>' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-accent" href="' + PLAN_PATH + '">购买订阅</a>' +
+            '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-secondary" href="' + TELEGRAM_URL + '" target="_blank" rel="noopener noreferrer">加电报群</a>' +
             '<button class="vvcloud-welcome-btn vvcloud-welcome-btn-secondary" type="button" data-act="dismiss">我知道了</button>' +
           "</div>" +
         "</div>" +
@@ -102,6 +107,94 @@
     }
   }
 
+  function getAccessToken() {
+    try {
+      var payload = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+      if (!payload) {
+        return "";
+      }
+
+      var parsed = JSON.parse(payload);
+      return parsed && parsed.value ? String(parsed.value) : "";
+    } catch (error) {
+      return "";
+    }
+  }
+
+  function normalizeAuthorization(token) {
+    var value = String(token || "").trim();
+    if (!value) {
+      return "";
+    }
+
+    if (/^Bearer\s+/i.test(value)) {
+      return value;
+    }
+
+    return "Bearer " + value;
+  }
+
+  function buildUserInfoUrl() {
+    var base = String(window.routerBase || "/");
+
+    if (!base) {
+      base = "/";
+    }
+
+    if (base.charAt(0) !== "/") {
+      base = "/" + base;
+    }
+
+    if (base.charAt(base.length - 1) === "/") {
+      base = base.slice(0, -1);
+    }
+
+    return window.location.origin + base + USER_INFO_API_PATH + "?t=" + Date.now();
+  }
+
+  function fetchUserInfo() {
+    if (userInfoRequest) {
+      return userInfoRequest;
+    }
+
+    var authorization = normalizeAuthorization(getAccessToken());
+    if (!authorization) {
+      return Promise.resolve(null);
+    }
+
+    userInfoRequest = window.fetch(buildUserInfoUrl(), {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        Authorization: authorization
+      }
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          return null;
+        }
+
+        return response.json().catch(function () {
+          return null;
+        });
+      })
+      .then(function (payload) {
+        if (!payload || payload.status !== "success" || !payload.data) {
+          return null;
+        }
+
+        return payload.data;
+      })
+      .catch(function () {
+        return null;
+      })
+      .finally(function () {
+        userInfoRequest = null;
+      });
+
+    return userInfoRequest;
+  }
+
   function shouldShowOnCurrentRoute() {
     return isDashboardRoute() && !isAuthRoute();
   }
@@ -116,7 +209,18 @@
     }
 
     if (!lastDashboardState) {
-      window.setTimeout(renderModal, 180);
+      fetchUserInfo().then(function (userInfo) {
+        if (!shouldShowOnCurrentRoute()) {
+          return;
+        }
+
+        if (!userInfo || Number(userInfo.plan_id) !== 1) {
+          removeModal();
+          return;
+        }
+
+        window.setTimeout(renderModal, 180);
+      });
     }
 
     lastDashboardState = true;
