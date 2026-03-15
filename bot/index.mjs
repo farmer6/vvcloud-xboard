@@ -64,6 +64,9 @@ function normalizeRule(rule, index) {
   const caseSensitive = Boolean(rule.caseSensitive);
   const cooldownSeconds = parseNumber(rule.cooldownSeconds, null);
   const supportedTypes = new Set(["includes", "exact", "regex", "word"]);
+  const excludeKeywords = Array.isArray(rule.excludeKeywords)
+    ? rule.excludeKeywords.map((keyword) => String(keyword).trim()).filter(Boolean)
+    : [];
 
   if (!reply) {
     throw new Error(`Rule ${id} is missing a reply`);
@@ -88,7 +91,12 @@ function normalizeRule(rule, index) {
       reply,
       cooldownMs: cooldownSeconds == null ? null : cooldownSeconds * 1000,
       matcher: new RegExp(pattern, flags),
+      excludeKeywords,
       matches(text) {
+        if (hasExcludedKeyword(text, this.excludeKeywords, caseSensitive)) {
+          return false;
+        }
+
         this.matcher.lastIndex = 0;
         return this.matcher.test(text);
       },
@@ -112,8 +120,13 @@ function normalizeRule(rule, index) {
     type,
     reply,
     cooldownMs: cooldownSeconds == null ? null : cooldownSeconds * 1000,
+    excludeKeywords,
     matches(text) {
       const target = caseSensitive ? text : text.toLowerCase();
+
+      if (hasExcludedKeyword(text, this.excludeKeywords, caseSensitive)) {
+        return false;
+      }
 
       if (type === "exact") {
         return normalizedKeywords.includes(target);
@@ -130,6 +143,19 @@ function normalizeRule(rule, index) {
       return normalizedKeywords.some((keyword) => target.includes(keyword));
     },
   };
+}
+
+function hasExcludedKeyword(text, excludeKeywords, caseSensitive) {
+  if (!excludeKeywords || excludeKeywords.length === 0) {
+    return false;
+  }
+
+  const target = caseSensitive ? text : text.toLowerCase();
+  const normalizedExcludedKeywords = caseSensitive
+    ? excludeKeywords
+    : excludeKeywords.map((keyword) => keyword.toLowerCase());
+
+  return normalizedExcludedKeywords.some((keyword) => target.includes(keyword));
 }
 
 function buildReplyOptions(messageId, replyToMessage) {

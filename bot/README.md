@@ -40,6 +40,11 @@ cp .env.example .env
 - `exact`：文本与某个关键词完全一致才命中
 - `regex`：正则表达式命中
 
+可选字段：
+
+- `excludeKeywords`：文本包含这些词时不触发当前规则
+- `cooldownSeconds`：单群下该规则的冷却时间
+
 4. 安装依赖并启动：
 
 ```bash
