@@ -7,8 +7,12 @@
 - 长轮询模式，不需要 webhook
 - 仅处理群和超级群文本消息
 - 群白名单控制
+- 高/低置信度规则，优先命中高置信度
 - 关键词 / 精确匹配 / 正则匹配
+- 单条规则支持多个回复模板随机返回
+- 规则文件热更新，不重启 bot 即可生效
 - 内存冷却，避免同一规则刷屏
+- 本地 `/health` 健康检查和详细控制台日志
 - 不依赖数据库
 
 ## 使用
@@ -27,6 +31,12 @@ cp .env.example .env
 - `DEFAULT_COOLDOWN_SECONDS`：默认冷却秒数
 - `REPLY_TO_MESSAGE`：是否以回复消息形式发送
 - `DROP_PENDING_UPDATES`：启动时是否丢弃积压消息
+- `ENABLE_LOW_CONFIDENCE`：是否启用低置信度规则
+- `HEALTH_ENABLED`：是否启用本地健康检查服务
+- `HEALTH_HOST`：健康检查监听地址，建议保持 `127.0.0.1`
+- `HEALTH_PORT`：健康检查端口
+- `LOG_MESSAGE_TEXT`：是否在日志里记录消息文本
+- `MAX_LOG_TEXT_LENGTH`：日志文本最大长度
 - `RULES_FILE`：规则文件路径
 
 3. 编辑 `rules.json`
@@ -42,8 +52,11 @@ cp .env.example .env
 
 可选字段：
 
+- `confidence`：`high` 或 `low`
+- `replies`：多个回复模板，命中后随机选择
 - `excludeKeywords`：文本包含这些词时不触发当前规则
 - `cooldownSeconds`：单群下该规则的冷却时间
+- `priority`：同一置信度下的规则优先级，数字越小越先匹配
 
 4. 安装依赖并启动：
 
@@ -58,6 +71,13 @@ npm start
 npm run check
 ```
 
+查看运行中 bot 的本地健康状态：
+
+```bash
+npm run health
+curl http://127.0.0.1:3939/health
+```
+
 ## 规则示例
 
 ```json
@@ -65,8 +85,12 @@ npm run check
   {
     "id": "download-client",
     "type": "includes",
+    "confidence": "high",
     "keywords": ["下载", "客户端"],
-    "reply": "客户端下载入口：https://your-domain.example/download",
+    "replies": [
+      "客户端下载入口请查看群置顶。",
+      "客户端请优先从官网或群置顶下载。"
+    ],
     "cooldownSeconds": 90
   }
 ]

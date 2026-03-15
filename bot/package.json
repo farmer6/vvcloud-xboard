@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "check": "node index.mjs --check",
+    "health": "node health.mjs",
     "start": "node index.mjs"
   },
   "dependencies": {
