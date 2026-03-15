@@ -11,7 +11,6 @@
     ],
     "license": "MIT",
     "require": {
-        "aws/aws-sdk-php": "^3.0",
         "php": "^8.2",
         "bacon/bacon-qr-code": "^2.0",
         "doctrine/dbal": "^4.0",
@@ -29,7 +28,6 @@
         "php-curl-class/php-curl-class": "^8.6",
         "spatie/db-dumper": "^3.4",
         "stripe/stripe-php": "^7.36.1",
-        "symfony/filesystem": "^7.4",
         "symfony/http-client": "^7.0",
         "symfony/mailgun-mailer": "^7.0",
         "symfony/yaml": "*",

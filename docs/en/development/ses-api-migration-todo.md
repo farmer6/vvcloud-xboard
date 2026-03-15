@@ -151,25 +151,17 @@ Files to review:
 
 When implementation starts, follow this order:
 
-1. remove `composer.lock` from `.gitignore` and `.dockerignore`
-2. import the current production `composer.lock` into the repo as the dependency baseline
-3. add AWS SDK dependency on top of that baseline instead of resolving from scratch
-4. refactor `config/mail.php` to Laravel 12-style mailers
-5. wire SES mailer config into `config/services.php` / env
-6. adjust `MailService` so SES mode does not get SMTP runtime overrides
-7. deploy to staging or a low-risk environment
-8. send test mail:
+1. add AWS SDK dependency
+2. refactor `config/mail.php` to Laravel 12-style mailers
+3. wire SES mailer config into `config/services.php` / env
+4. adjust `MailService` so SES mode does not get SMTP runtime overrides
+5. deploy to staging or a low-risk environment
+6. send test mail:
    - verification code
    - reminder mail
    - mail login link
-9. monitor `mail_log.error` and Horizon failed jobs
-10. only then enable in production
-
-Important rollout constraint:
-
-- do not commit a freshly generated `composer.lock` from a no-lock local environment directly to production
-- production already has its own locked dependency tree, so that file must become the baseline first
-- otherwise this migration becomes a hidden framework-wide dependency refresh instead of a targeted SES API change
+7. monitor `mail_log.error` and Horizon failed jobs
+8. only then enable in production
 
 ## 9. Suggested Test Cases
 
@@ -186,14 +178,11 @@ Before production rollout, test:
 
 Likely implementation files:
 
-- `.gitignore`
-- `.dockerignore`
 - `composer.json`
 - `config/mail.php`
 - `config/services.php`
 - `app/Services/MailService.php`
-- `.env.example`
-- `composer.lock`
+- possibly `.env.example`
 
 Maybe touched during verification:
 
