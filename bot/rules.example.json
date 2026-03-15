@@ -1,0 +1,23 @@
+[
+  {
+    "id": "download-client",
+    "type": "includes",
+    "keywords": ["下载", "客户端"],
+    "reply": "客户端下载入口：https://your-domain.example/download",
+    "cooldownSeconds": 90
+  },
+  {
+    "id": "renew-plan",
+    "type": "includes",
+    "keywords": ["续费", "充值"],
+    "reply": "续费请登录官网操作；如果支付异常，请联系管理员。",
+    "cooldownSeconds": 120
+  },
+  {
+    "id": "manual-support",
+    "type": "regex",
+    "pattern": "人工|客服|管理员",
+    "reply": "如需人工处理，请直接说明问题或联系群管理员。",
+    "cooldownSeconds": 60
+  }
+]

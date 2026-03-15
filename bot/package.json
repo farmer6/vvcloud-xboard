@@ -1,0 +1,13 @@
+{
+  "name": "vvcloud-telegram-bot",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node index.mjs --check",
+    "start": "node index.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "grammy": "^1.41.1"
+  }
+}
