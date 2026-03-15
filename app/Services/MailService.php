@@ -213,15 +213,7 @@ class MailService
      */
     public static function sendEmail(array $params)
     {
-        if (admin_setting('email_host')) {
-            Config::set('mail.host', admin_setting('email_host', config('mail.host')));
-            Config::set('mail.port', admin_setting('email_port', config('mail.port')));
-            Config::set('mail.encryption', admin_setting('email_encryption', config('mail.encryption')));
-            Config::set('mail.username', admin_setting('email_username', config('mail.username')));
-            Config::set('mail.password', admin_setting('email_password', config('mail.password')));
-            Config::set('mail.from.address', admin_setting('email_from_address', config('mail.from.address')));
-            Config::set('mail.from.name', admin_setting('app_name', 'XBoard'));
-        }
+        $mailer = self::configureMailer();
         $email = (string) $params['email'];
         $subject = (string) $params['subject'];
         $params['template_name'] = 'mail.' . admin_setting('email_template', 'default') . '.' . $params['template_name'];
@@ -229,7 +221,7 @@ class MailService
         $error = self::validateEmailAddress($email);
         if ($error === null) {
             try {
-                Mail::send(
+                Mail::mailer($mailer)->send(
                     $params['template_name'],
                     $params['template_value'],
                     function ($message) use ($email, $subject) {
@@ -247,10 +239,52 @@ class MailService
             'subject' => $params['subject'],
             'template_name' => $params['template_name'],
             'error' => $error,
-            'config' => config('mail')
+            'config' => [
+                'default' => config('mail.default'),
+                'mailer' => $mailer,
+                'from' => config('mail.from'),
+                'transport' => config("mail.mailers.{$mailer}"),
+            ]
         ];
         MailLog::create($log);
         return $log;
+    }
+
+    private static function configureMailer(): string
+    {
+        $mailer = (string) config('mail.default', config('mail.driver', 'smtp'));
+
+        self::applyFromOverrides();
+
+        if ($mailer === 'smtp' && admin_setting('email_host')) {
+            Config::set('mail.mailers.smtp.host', admin_setting('email_host', config('mail.mailers.smtp.host')));
+            Config::set('mail.mailers.smtp.port', admin_setting('email_port', config('mail.mailers.smtp.port')));
+            Config::set('mail.mailers.smtp.encryption', admin_setting('email_encryption', config('mail.mailers.smtp.encryption')));
+            Config::set('mail.mailers.smtp.username', admin_setting('email_username', config('mail.mailers.smtp.username')));
+            Config::set('mail.mailers.smtp.password', admin_setting('email_password', config('mail.mailers.smtp.password')));
+        }
+
+        self::forgetResolvedMailers();
+
+        return $mailer;
+    }
+
+    private static function applyFromOverrides(): void
+    {
+        $fromAddress = admin_setting('email_from_address');
+        if ($fromAddress) {
+            Config::set('mail.from.address', $fromAddress);
+        }
+
+        Config::set('mail.from.name', admin_setting('app_name', config('mail.from.name', 'XBoard')));
+    }
+
+    private static function forgetResolvedMailers(): void
+    {
+        $manager = app('mail.manager');
+        if (is_object($manager) && method_exists($manager, 'forgetMailers')) {
+            $manager->forgetMailers();
+        }
     }
 
     private static function validateEmailAddress(string $email): ?string
