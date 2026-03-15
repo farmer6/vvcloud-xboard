@@ -109,6 +109,18 @@
   box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.24);
 }
 
+.vvcloud-welcome-btn-copy {
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+  box-shadow: 0 14px 26px rgba(124, 58, 237, 0.24);
+}
+
+.vvcloud-welcome-btn:disabled {
+  cursor: default;
+  opacity: 0.88;
+  transform: none;
+}
+
 @media (max-width: 640px) {
   .vvcloud-welcome-mask {
     padding: 14px;

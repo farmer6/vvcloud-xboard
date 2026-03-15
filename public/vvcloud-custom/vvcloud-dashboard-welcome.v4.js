@@ -51,7 +51,46 @@
     document.removeEventListener("keydown", onEscape);
   }
 
-  function renderModal() {
+  function copy(text) {
+    var value = String(text || "");
+    if (!value) {
+      return Promise.resolve(false);
+    }
+
+    if (window.navigator && window.navigator.clipboard && window.isSecureContext) {
+      return window.navigator.clipboard.writeText(value)
+        .then(function () {
+          return true;
+        })
+        .catch(function () {
+          return fallbackCopy(value);
+        });
+    }
+
+    return Promise.resolve(fallbackCopy(value));
+  }
+
+  function fallbackCopy(text) {
+    var input = document.createElement("textarea");
+    input.value = text;
+    input.setAttribute("readonly", "readonly");
+    input.style.position = "fixed";
+    input.style.top = "-9999px";
+    input.style.left = "-9999px";
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+
+    try {
+      return document.execCommand("copy");
+    } catch (error) {
+      return false;
+    } finally {
+      input.remove();
+    }
+  }
+
+  function renderModal(subscribeUrl) {
     if (document.getElementById(MODAL_ID)) {
       return;
     }
@@ -70,7 +109,7 @@
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-primary" href="' + KNOWLEDGE_PATH + '">查看新手教程</a>' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-accent" href="' + PLAN_PATH + '">购买订阅</a>' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-secondary" href="' + TELEGRAM_URL + '" target="_blank" rel="noopener noreferrer">加电报群</a>' +
-            '<button class="vvcloud-welcome-btn vvcloud-welcome-btn-secondary" type="button" data-act="dismiss">我知道了</button>' +
+            '<button class="vvcloud-welcome-btn vvcloud-welcome-btn-copy" type="button" data-act="copy-subscribe">复制订阅地址</button>' +
           "</div>" +
         "</div>" +
       "</section>";
@@ -83,9 +122,21 @@
       }
     });
 
-    var dismissButton = mask.querySelector('[data-act="dismiss"]');
-    if (dismissButton) {
-      dismissButton.addEventListener("click", removeModal);
+    var copyButton = mask.querySelector('[data-act="copy-subscribe"]');
+    if (copyButton) {
+      copyButton.addEventListener("click", function () {
+        var button = copyButton;
+        var originalText = button.textContent;
+        button.disabled = true;
+
+        copy(subscribeUrl).then(function (copied) {
+          button.textContent = copied ? "订阅地址已复制" : "复制失败，请稍后重试";
+          window.setTimeout(function () {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 1600);
+        });
+      });
     }
 
     var knowledgeLink = mask.querySelector('a[href="' + KNOWLEDGE_PATH + '"]');
@@ -219,7 +270,9 @@
           return;
         }
 
-        window.setTimeout(renderModal, 180);
+        window.setTimeout(function () {
+          renderModal(userInfo.subscribe_url);
+        }, 180);
       });
     }
 
