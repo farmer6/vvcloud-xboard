@@ -8,8 +8,10 @@
   var POLL_INTERVAL_MS = 250;
   var ACCESS_TOKEN_STORAGE_KEY = "VUE_NAIVE_ACCESS_TOKEN";
   var USER_INFO_API_PATH = "/api/v1/user/info";
+  var USER_SUBSCRIBE_API_PATH = "/api/v1/user/getSubscribe";
   var lastDashboardState = false;
   var userInfoRequest = null;
+  var userSubscribeRequest = null;
 
   function currentHash() {
     return String(window.location.hash || "").toLowerCase();
@@ -134,14 +136,30 @@
         var button = copyButton;
         var originalText = button.textContent;
         button.disabled = true;
+        var currentSubscribeUrl = String(subscribeUrl || "");
+        var subscribePromise = currentSubscribeUrl
+          ? Promise.resolve(currentSubscribeUrl)
+          : fetchUserSubscribe().then(function (payload) {
+              return payload && payload.subscribe_url ? String(payload.subscribe_url) : "";
+            });
 
-        copy(subscribeUrl).then(function (copied) {
-          button.textContent = copied ? "订阅地址已复制" : "复制失败，请稍后重试";
-          window.setTimeout(function () {
-            button.textContent = originalText;
-            button.disabled = false;
-          }, 1600);
-        });
+        subscribePromise
+          .then(function (resolvedSubscribeUrl) {
+            subscribeUrl = resolvedSubscribeUrl;
+            return copy(resolvedSubscribeUrl);
+          })
+          .then(function (copied) {
+            button.textContent = copied ? "订阅地址已复制" : "复制失败，请稍后重试";
+          })
+          .catch(function () {
+            button.textContent = "复制失败，请稍后重试";
+          })
+          .finally(function () {
+            window.setTimeout(function () {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1600);
+          });
       });
     }
 
@@ -191,7 +209,7 @@
     return "Bearer " + value;
   }
 
-  function buildUserInfoUrl() {
+  function buildApiUrl(apiPath) {
     var base = String(window.routerBase || "/");
 
     if (!base) {
@@ -206,7 +224,7 @@
       base = base.slice(0, -1);
     }
 
-    return window.location.origin + base + USER_INFO_API_PATH + "?t=" + Date.now();
+    return window.location.origin + base + apiPath + "?t=" + Date.now();
   }
 
   function fetchUserInfo() {
@@ -219,7 +237,7 @@
       return Promise.resolve(null);
     }
 
-    userInfoRequest = window.fetch(buildUserInfoUrl(), {
+    userInfoRequest = window.fetch(buildApiUrl(USER_INFO_API_PATH), {
       method: "GET",
       credentials: "same-origin",
       headers: {
@@ -250,6 +268,49 @@
       });
 
     return userInfoRequest;
+  }
+
+  function fetchUserSubscribe() {
+    if (userSubscribeRequest) {
+      return userSubscribeRequest;
+    }
+
+    var authorization = normalizeAuthorization(getAccessToken());
+    if (!authorization) {
+      return Promise.resolve(null);
+    }
+
+    userSubscribeRequest = window.fetch(buildApiUrl(USER_SUBSCRIBE_API_PATH), {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        Authorization: authorization
+      }
+    })
+      .then(function (response) {
+        if (!response.ok) {
+          return null;
+        }
+
+        return response.json().catch(function () {
+          return null;
+        });
+      })
+      .then(function (payload) {
+        if (!payload || payload.status !== "success" || !payload.data) {
+          return null;
+        }
+
+        return payload.data;
+      })
+      .catch(function () {
+        return null;
+      })
+      .finally(function () {
+        userSubscribeRequest = null;
+      });
+
+    return userSubscribeRequest;
   }
 
   function shouldShowOnCurrentRoute() {
