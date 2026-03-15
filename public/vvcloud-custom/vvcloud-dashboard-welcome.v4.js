@@ -63,7 +63,7 @@
       '<section class="vvcloud-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="vvcloud-welcome-title">' +
         '<div class="vvcloud-welcome-body">' +
           '<div class="vvcloud-welcome-eyebrow">NEW USER GUIDE</div>' +
-          '<h2 class="vvcloud-welcome-title" id="vvcloud-welcome-title">新用户2元购买体验套餐，优惠码：9x0QusCR</h2>' +
+          '<h2 class="vvcloud-welcome-title" id="vvcloud-welcome-title">新用户首次9折优惠券：new90 体验IEPL专线、家宽IP：适用于200G以上包月/流量套餐</h2>' +
           '<p class="vvcloud-welcome-desc">首次进入面板，建议先看一下使用说明。如果你还不熟悉订阅导入、客户端选择或节点使用方式，可以直接查看新手教程或者联系电报群客服。</p>' +
           '<div class="vvcloud-welcome-note">测试期间动态家宽 IP 线路无法体验，可购买订阅使用。</div>' +
           '<div class="vvcloud-welcome-actions">' +
