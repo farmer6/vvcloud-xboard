@@ -101,10 +101,11 @@
     mask.innerHTML =
       '<section class="vvcloud-welcome-modal" role="dialog" aria-modal="true" aria-labelledby="vvcloud-welcome-title">' +
         '<div class="vvcloud-welcome-body">' +
+          '<button class="vvcloud-welcome-close" type="button" aria-label="关闭弹窗" data-act="dismiss">X</button>' +
           '<div class="vvcloud-welcome-eyebrow">NEW USER GUIDE</div>' +
           '<h2 class="vvcloud-welcome-title" id="vvcloud-welcome-title">新用户首次9折优惠券：new90 体验IEPL专线、家宽IP：适用于200G以上包月/流量套餐</h2>' +
           '<p class="vvcloud-welcome-desc">首次进入面板，建议先看一下使用说明。如果你还不熟悉订阅导入、客户端选择或节点使用方式，可以直接查看新手教程或者联系电报群客服。</p>' +
-          '<div class="vvcloud-welcome-note">测试期间动态家宽 IP 线路无法体验，可购买订阅使用。</div>' +
+          '<div class="vvcloud-welcome-note">特殊动态家宽 IP 线路无法免费测试，可购买订阅使用。</div>' +
           '<div class="vvcloud-welcome-actions">' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-primary" href="' + KNOWLEDGE_PATH + '">查看新手教程</a>' +
             '<a class="vvcloud-welcome-btn vvcloud-welcome-btn-accent" href="' + PLAN_PATH + '">购买订阅</a>' +
@@ -121,6 +122,11 @@
         removeModal();
       }
     });
+
+    var dismissButton = mask.querySelector('[data-act="dismiss"]');
+    if (dismissButton) {
+      dismissButton.addEventListener("click", removeModal);
+    }
 
     var copyButton = mask.querySelector('[data-act="copy-subscribe"]');
     if (copyButton) {

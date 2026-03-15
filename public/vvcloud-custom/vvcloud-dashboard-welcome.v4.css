@@ -22,7 +22,35 @@
 }
 
 .vvcloud-welcome-body {
+  position: relative;
   padding: 28px 26px 20px;
+}
+
+.vvcloud-welcome-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.24);
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.vvcloud-welcome-close:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.96);
+  transform: translateY(-1px);
 }
 
 .vvcloud-welcome-eyebrow {
@@ -128,6 +156,11 @@
 
   .vvcloud-welcome-body {
     padding: 22px 18px 18px;
+  }
+
+  .vvcloud-welcome-close {
+    top: 12px;
+    right: 12px;
   }
 
   .vvcloud-welcome-title {
