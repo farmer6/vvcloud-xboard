@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\TicketMessage;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UserHardDeleteService
 {
@@ -29,25 +30,25 @@ class UserHardDeleteService
                     'email' => $user->email,
                 ],
                 'deleted' => [
-                    'personal_access_tokens' => $user->tokens()->delete(),
+                    'personal_access_tokens' => $this->deletePersonalAccessTokens($user),
                     'ticket_messages' => $this->deleteTicketMessages($user->id, $ticketIds),
                     'tickets' => $user->tickets()->delete(),
                     'orders' => $user->orders()->delete(),
                     'invite_codes' => $user->codes()->delete(),
                     'stat_records' => $user->stat()->delete(),
-                    'traffic_reset_logs' => $user->trafficResetLogs()->delete(),
+                    'traffic_reset_logs' => $this->deleteTrafficResetLogs($user),
                 ],
                 'detached' => [
                     'invited_users' => User::where('invite_user_id', $user->id)->update(['invite_user_id' => null]),
                     'child_users' => User::where('parent_id', $user->id)->update(['parent_id' => null]),
                     'invited_orders' => Order::where('invite_user_id', $user->id)->update(['invite_user_id' => null]),
-                    'gift_card_code_user_refs' => GiftCardCode::where('user_id', $user->id)->update(['user_id' => null]),
-                    'gift_card_usage_invite_refs' => GiftCardUsage::where('invite_user_id', $user->id)->update(['invite_user_id' => null]),
+                    'gift_card_code_user_refs' => $this->detachGiftCardCodeUserRefs($user),
+                    'gift_card_usage_invite_refs' => $this->detachGiftCardUsageInviteRefs($user),
                 ],
                 'preserved' => [
-                    'commission_logs_as_buyer' => CommissionLog::where('user_id', $user->id)->count(),
-                    'commission_logs_as_inviter' => CommissionLog::where('invite_user_id', $user->id)->count(),
-                    'gift_card_usages_as_user' => GiftCardUsage::where('user_id', $user->id)->count(),
+                    'commission_logs_as_buyer' => $this->countCommissionLogsAsBuyer($user),
+                    'commission_logs_as_inviter' => $this->countCommissionLogsAsInviter($user),
+                    'gift_card_usages_as_user' => $this->countGiftCardUsagesAsUser($user),
                 ],
                 'notes' => [
                     'v2_commission_log is preserved because it is treated as historical payout/ledger data.',
@@ -76,5 +77,68 @@ class UserHardDeleteService
         }
 
         return $query->delete();
+    }
+
+    private function deletePersonalAccessTokens(User $user): int
+    {
+        if (!Schema::hasTable('personal_access_tokens')) {
+            return 0;
+        }
+
+        return $user->tokens()->delete();
+    }
+
+    private function deleteTrafficResetLogs(User $user): int
+    {
+        if (!Schema::hasTable('v2_traffic_reset_logs')) {
+            return 0;
+        }
+
+        return $user->trafficResetLogs()->delete();
+    }
+
+    private function detachGiftCardCodeUserRefs(User $user): int
+    {
+        if (!Schema::hasTable('v2_gift_card_code')) {
+            return 0;
+        }
+
+        return GiftCardCode::where('user_id', $user->id)->update(['user_id' => null]);
+    }
+
+    private function detachGiftCardUsageInviteRefs(User $user): int
+    {
+        if (!Schema::hasTable('v2_gift_card_usage')) {
+            return 0;
+        }
+
+        return GiftCardUsage::where('invite_user_id', $user->id)->update(['invite_user_id' => null]);
+    }
+
+    private function countCommissionLogsAsBuyer(User $user): int
+    {
+        if (!Schema::hasTable('v2_commission_log')) {
+            return 0;
+        }
+
+        return CommissionLog::where('user_id', $user->id)->count();
+    }
+
+    private function countCommissionLogsAsInviter(User $user): int
+    {
+        if (!Schema::hasTable('v2_commission_log')) {
+            return 0;
+        }
+
+        return CommissionLog::where('invite_user_id', $user->id)->count();
+    }
+
+    private function countGiftCardUsagesAsUser(User $user): int
+    {
+        if (!Schema::hasTable('v2_gift_card_usage')) {
+            return 0;
+        }
+
+        return GiftCardUsage::where('user_id', $user->id)->count();
     }
 }
