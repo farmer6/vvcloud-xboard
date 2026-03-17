@@ -39,9 +39,9 @@ class UserHardDeleteService
                     'traffic_reset_logs' => $this->deleteTrafficResetLogs($user),
                 ],
                 'detached' => [
-                    'invited_users' => User::where('invite_user_id', $user->id)->update(['invite_user_id' => null]),
-                    'child_users' => User::where('parent_id', $user->id)->update(['parent_id' => null]),
-                    'invited_orders' => Order::where('invite_user_id', $user->id)->update(['invite_user_id' => null]),
+                    'invited_users' => $this->detachInvitedUsers($user),
+                    'child_users' => $this->detachChildUsers($user),
+                    'invited_orders' => $this->detachInvitedOrders($user),
                     'gift_card_code_user_refs' => $this->detachGiftCardCodeUserRefs($user),
                     'gift_card_usage_invite_refs' => $this->detachGiftCardUsageInviteRefs($user),
                 ],
@@ -97,9 +97,36 @@ class UserHardDeleteService
         return $user->trafficResetLogs()->delete();
     }
 
+    private function detachInvitedUsers(User $user): int
+    {
+        if (!Schema::hasColumn('v2_user', 'invite_user_id')) {
+            return 0;
+        }
+
+        return User::where('invite_user_id', $user->id)->update(['invite_user_id' => null]);
+    }
+
+    private function detachChildUsers(User $user): int
+    {
+        if (!Schema::hasColumn('v2_user', 'parent_id')) {
+            return 0;
+        }
+
+        return User::where('parent_id', $user->id)->update(['parent_id' => null]);
+    }
+
+    private function detachInvitedOrders(User $user): int
+    {
+        if (!Schema::hasColumn('v2_order', 'invite_user_id')) {
+            return 0;
+        }
+
+        return Order::where('invite_user_id', $user->id)->update(['invite_user_id' => null]);
+    }
+
     private function detachGiftCardCodeUserRefs(User $user): int
     {
-        if (!Schema::hasTable('v2_gift_card_code')) {
+        if (!Schema::hasTable('v2_gift_card_code') || !Schema::hasColumn('v2_gift_card_code', 'user_id')) {
             return 0;
         }
 
@@ -108,7 +135,7 @@ class UserHardDeleteService
 
     private function detachGiftCardUsageInviteRefs(User $user): int
     {
-        if (!Schema::hasTable('v2_gift_card_usage')) {
+        if (!Schema::hasTable('v2_gift_card_usage') || !Schema::hasColumn('v2_gift_card_usage', 'invite_user_id')) {
             return 0;
         }
 
@@ -117,7 +144,7 @@ class UserHardDeleteService
 
     private function countCommissionLogsAsBuyer(User $user): int
     {
-        if (!Schema::hasTable('v2_commission_log')) {
+        if (!Schema::hasTable('v2_commission_log') || !Schema::hasColumn('v2_commission_log', 'user_id')) {
             return 0;
         }
 
@@ -126,7 +153,7 @@ class UserHardDeleteService
 
     private function countCommissionLogsAsInviter(User $user): int
     {
-        if (!Schema::hasTable('v2_commission_log')) {
+        if (!Schema::hasTable('v2_commission_log') || !Schema::hasColumn('v2_commission_log', 'invite_user_id')) {
             return 0;
         }
 
@@ -135,7 +162,7 @@ class UserHardDeleteService
 
     private function countGiftCardUsagesAsUser(User $user): int
     {
-        if (!Schema::hasTable('v2_gift_card_usage')) {
+        if (!Schema::hasTable('v2_gift_card_usage') || !Schema::hasColumn('v2_gift_card_usage', 'user_id')) {
             return 0;
         }
 
