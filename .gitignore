@@ -1,6 +1,9 @@
 /node_modules
 /bot/node_modules
 /bot/.env
+/bot/cache/*.json
+/ops-ui/node_modules
+/ops-ui/.env
 /config/v2board.php
 /config/googleCloudStorageKey.json
 /public/hot
